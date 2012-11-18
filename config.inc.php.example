@@ -1,0 +1,8 @@
+<?php
+
+// The credentials that you use to log in into the netbank web interface
+
+$clientno = '12345678';
+$password = 'whatever';
+
+?>

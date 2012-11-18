@@ -1,10 +1,7 @@
 <?php
 
-require_once "HTTP.php";
-
 class NetBank {
     public function NetBank () {
-        $this->http = new HTTP();
     }
 
 

@@ -1,7 +1,5 @@
 <?php
 
-require_once "functions.inc.php";
-
 require_once "HTTP.php";
 
 class NetBank {
@@ -162,7 +160,6 @@ class NetBank {
         $result = curl_exec ($ch); 
 
         $header = curl_getinfo($ch);
-        print_r($header);
         curl_close($ch);
         return $result;
     }

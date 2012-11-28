@@ -54,6 +54,9 @@ class NetBank {
         }
 
         $res = $this->getRequest($this->basepath.$this->mainlink);
+        if (!$res)
+            return false;
+
         $r = explode("\n", $res);
 
         foreach ($r as $l) {

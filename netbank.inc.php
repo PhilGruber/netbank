@@ -121,26 +121,69 @@ class NetBank {
         return $accounts;
     }
 
-    public function getAccountData($id = 0) {
-/*
+    public function getAccountData($id = 0, $maxPages = 5) {
+
         if (!isset($this->accounts[$id]))
-            return false;
+			return false;
 
-        $a = $this->accounts[$id];
+		$data = array();
 
-        echo ($this->baseurl.$a['link'])."\n";
-        $res = $this->getRequest($this->baseurl.$a['link']);
-        
-        file_put_contents("/tmp/nb.$id.account", $res);
+		$page = 0;
 
-        */
-        $res = file("/tmp/nb.$id.account");
-        
-        foreach ($res AS $l) {
-            $l = trim($l);
-            echo "[$l]\n";
-        }
+        $acc = $this->accounts[$id];
 
+        $link = $this->baseurl.$acc['link'];
+		
+		while ($link && $page++ <= $maxPages) {
+//			echo "fetching Page $page... ($link)\n";
+			$res = $this->getRequest($link);
+			$res = trim($res);
+			$link = '';
+
+/* //		For debugging purposes
+			file_put_contents("/tmp/nb.$id.$page.account.html", $res);
+			$res = file_get_contents("/tmp/nb.$id.$page.account.html");
+// */			
+
+			/* Fix malformed html */
+			$res = preg_replace('!< *Back!', '&gt; Back', $res); 
+			$res = preg_replace('!&nbsp;!', ' ', $res); 
+
+			$xml = new SimpleXMLElement($res);
+			$table = $xml->body->form->table[1];
+			$date = '';
+			$value = '';
+			$caption = '';
+			foreach ($table as $row) {
+				if (isset($row->td->strong)) {
+					$date = preg_replace('!(..)/(..)/(....)!', '\3-\2-\1', $row->td->strong);
+				} else if (isset($row->td->span)) {
+					$plain = trim($row->td->span);
+					if (preg_match('!^\$!', $plain)) {
+						$number = preg_replace('!^\$([0-9,]+\.[0-9]+) *[CD]R$!', '\1', $plain);
+						if (substr($plain, -2) == 'CR')
+							$value = $plain;
+						else
+							$value = "-$plain";
+
+						$data[] = array(
+							'date' => $date,
+							'reference' => $caption,
+							'value' => $value
+						);
+						$caption = '';
+						$value = '';
+					} else {
+						$caption = $plain;
+					}
+				} else if ($row->td->a) {
+					$a = $row->td->a;
+					if (preg_match('!^Next!', $a))
+						$link = $this->baseurl.'/Mobile/Account/'.$a->attributes()->href;
+				}
+			}
+		}
+		return $data;
     }
 
     private function getRequest($url) {

@@ -162,9 +162,9 @@ class NetBank {
 					if (preg_match('!^\$!', $plain)) {
 						$number = preg_replace('!^\$([0-9,]+\.[0-9]+) *[CD]R$!', '\1', $plain);
 						if (substr($plain, -2) == 'CR')
-							$value = $plain;
+							$value = $number;
 						else
-							$value = "-$plain";
+							$value = "-$number";
 
 						$data[] = array(
 							'date' => $date,

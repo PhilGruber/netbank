@@ -38,7 +38,7 @@ class NetBank {
         }
 
         if (!$this->mainlink) {
-            echo "Error: Not find link\n";
+            echo "Error: Couldn't read accounts\n";
             return false;
         }
 

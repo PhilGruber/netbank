@@ -161,7 +161,8 @@ class NetBank {
 				} else if (isset($row->td->span)) {
 					$plain = trim($row->td->span);
 					if (preg_match('!^\$!', $plain)) {
-						$number = preg_replace('!^\$([0-9,]+\.[0-9]+) *[CD]R$!', '\1', $plain);
+						$number = str_replace(',', '', $plain);
+						$number = preg_replace('!^\$([0-9,]+\.[0-9]+) *[CD]R$!', '\1', $number);
 						if (substr($plain, -2) == 'CR')
 							$value = $number;
 						else

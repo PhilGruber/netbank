@@ -1,7 +1,7 @@
 <?php
 
 class NetBank {
-    public function NetBank () {
+    public function NetBank ($logging = false) {
     }
 
 
@@ -148,6 +148,7 @@ class NetBank {
 			/* Fix malformed html */
 			$res = preg_replace('!< *Back!', '&gt; Back', $res); 
 			$res = preg_replace('!&nbsp;!', ' ', $res); 
+			$res = preg_replace('!&([^a])!', '&amp;\1', $res); 
 
 			$xml = new SimpleXMLElement($res);
 			$table = $xml->body->form->table[1];
@@ -168,13 +169,13 @@ class NetBank {
 
 						$data[] = array(
 							'date' => $date,
-							'reference' => $caption,
+							'reference' => trim($caption),
 							'value' => $value
 						);
 						$caption = '';
 						$value = '';
 					} else {
-						$caption = $plain;
+						$caption .= $plain."\n";
 					}
 				} else if ($row->td->a) {
 					$a = $row->td->a;
@@ -239,9 +240,20 @@ class NetBank {
         return $this->cookies;
     }
 
+	private function output($message) {
+		if ($this->debug) {
+			echo date("[Y-m-d H:i:s]").' '.$message."\n";
+		}
+		if ($this->log) {
+			file_put_contents($this->log, date("[Y-m-d H:i:s]").' '.$message."\n", FILE_APPEND);
+		}
+	}
+
     private $basepath = 'https://www2.my.commbank.com.au/mobile/security/';
     private $baseurl = 'https://www2.my.commbank.com.au';
     private $mainlink;
+	private $debug = false;
+	private $log = false;
 
     private $http;
 }

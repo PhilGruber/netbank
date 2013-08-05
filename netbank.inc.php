@@ -141,8 +141,8 @@ class NetBank {
 			$link = '';
 
 /* //		For debugging purposes
-			file_put_contents("/tmp/nb.$id.$page.account.html", $res);
-			$res = file_get_contents("/tmp/nb.$id.$page.account.html");
+			file_put_contents("/tmp/nb.{$acc['name']}.$page.account.html", $res);
+			$res = file_get_contents("/tmp/nb.{$acc['name']}.$page.account.html");
 // */			
 
 			/* Fix malformed html */
@@ -157,12 +157,15 @@ class NetBank {
 			$caption = '';
 			foreach ($table as $row) {
 				if (isset($row->td->strong)) {
-					$date = preg_replace('!(..)/(..)/(....)!', '\3-\2-\1', $row->td->strong);
+					if (preg_match('!PENDING!', $row->td->strong))
+						$pending = true;	
+					else
+						$date = preg_replace('!(..)/(..)/(....)!', '\3-\2-\1', $row->td->strong);
 				} else if (isset($row->td->span)) {
 					$plain = trim($row->td->span);
 					if (preg_match('!^\$!', $plain)) {
 						$number = str_replace(',', '', $plain);
-						$number = preg_replace('!^\$([0-9,]+\.[0-9]+) *[CD]R$!', '\1', $number);
+						$number = preg_replace('!^\$([0-9,]+\.[0-9]+)( |&nbsp;)*[CD]R$!', '\1', $number);
 						if (substr($plain, -2) == 'CR')
 							$value = $number;
 						else
@@ -171,10 +174,12 @@ class NetBank {
 						$data[] = array(
 							'date' => $date,
 							'reference' => trim($caption),
-							'value' => $value
+							'value' => $value,
+							'pending' => $pending,
 						);
 						$caption = '';
 						$value = '';
+						$pending = false;
 					} else {
 						$caption .= $plain."\n";
 					}

@@ -155,6 +155,7 @@ class NetBank {
 			$date = '';
 			$value = '';
 			$caption = '';
+			$pending = false;
 			foreach ($table as $row) {
 				if (isset($row->td->strong)) {
 					if (preg_match('!PENDING!', $row->td->strong))

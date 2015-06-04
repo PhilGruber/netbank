@@ -9,7 +9,7 @@ class NetBank {
 
         $data = Array();
         $url = $this->basepath.'logon.aspx';
-        
+
         $f = explode("\n", $this->getRequest($url));
 
         foreach ($f as $l) {
@@ -22,7 +22,7 @@ class NetBank {
                 $value = '';
             $data[$key] = $value;
         }
-        
+
         $data["ctl00\$DefaultContent\$txtUserId"] = $clientno;
         $data["ctl00\$DefaultContent\$txtPassword"] = $password;
 
@@ -49,7 +49,6 @@ class NetBank {
 
     public function getAccounts() {
         if (!$this->mainlink) {
-            echo "Error: not logged in\n";
             return false;
         }
 
@@ -133,22 +132,17 @@ class NetBank {
         $acc = $this->accounts[$id];
 
         $link = $this->baseurl.$acc['link'];
-		
+
 		while ($link && $page++ <= $maxPages) {
 //			echo "fetching Page $page... ($link)\n";
 			$res = $this->getRequest($link);
 			$res = trim($res);
 			$link = '';
 
-/* //		For debugging purposes
-			file_put_contents("/tmp/nb.{$acc['name']}.$page.account.html", $res);
-			$res = file_get_contents("/tmp/nb.{$acc['name']}.$page.account.html");
-// */			
-
 			/* Fix malformed html */
-			$res = preg_replace('!< *Back!', '&gt; Back', $res); 
-			$res = preg_replace('!&nbsp;!', ' ', $res); 
-			$res = preg_replace('!&([^a])!', '&amp;\1', $res); 
+			$res = preg_replace('!< *Back!', '&gt; Back', $res);
+			$res = preg_replace('!&nbsp;!', ' ', $res);
+			$res = preg_replace('!&([^a])!', '&amp;\1', $res);
 
 			$xml = new SimpleXMLElement($res);
 			$table = $xml->body->form->table[1];
@@ -159,7 +153,7 @@ class NetBank {
 			foreach ($table as $row) {
 				if (isset($row->td->strong)) {
 					if (preg_match('!PENDING!', $row->td->strong))
-						$pending = true;	
+						$pending = true;
 					else
 						$date = preg_replace('!(..)/(..)/(....)!', '\3-\2-\1', $row->td->strong);
 				} else if (isset($row->td->span)) {

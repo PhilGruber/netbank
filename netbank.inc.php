@@ -250,8 +250,8 @@ class NetBank {
 		}
 	}
 
-    private $basepath = 'https://www2.my.commbank.com.au/mobile/security/';
-    private $baseurl = 'https://www2.my.commbank.com.au';
+    private $basepath = 'https://www1.my.commbank.com.au/mobile/security/';
+    private $baseurl = 'https://www1.my.commbank.com.au';
     private $mainlink;
 	private $debug = false;
 	private $log = false;
